@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS variants CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
+
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     last_name VARCHAR(100) NOT NULL,
@@ -45,13 +46,8 @@ CREATE TABLE orders (
     order_number INT NOT NULL,
     order_date DATE NOT NULL DEFAULT CURRENT_DATE,
     user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
-    customer_fio VARCHAR(250),
-    category VARCHAR(100),
     product_id INT REFERENCES products(product_id) ON DELETE SET NULL,
-    product_name_raw VARCHAR(150),
-    production VARCHAR(150),
     variant_id INT REFERENCES variants(variant_id) ON DELETE SET NULL,
-    variant_name_raw VARCHAR(100),
     quantity INT NOT NULL CHECK (quantity > 0),
     unit_price NUMERIC(10, 2) NOT NULL CHECK (unit_price >= 0)
 );
