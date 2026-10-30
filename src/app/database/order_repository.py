@@ -31,7 +31,7 @@ def get_order_items(order_id):
                o.production, o.variant_name_raw AS variant_name,
                o.quantity, o.unit_price AS price
         FROM orders o
-        WHERE o.order_number = (SELECT order_number FROM orders WHERE order_id = %s)
+        WHERE o.order_id = %s
         ORDER BY o.order_id
         """,
         (order_id,),
@@ -40,8 +40,8 @@ def get_order_items(order_id):
 
 def create_order(user_id, cart_items):
     def action(cursor):
-        cursor.execute("SELECT COALESCE(MAX(order_number), 0) + 1 AS next_num FROM orders")
-        order_number = cursor.fetchone()["next_num"]
+        cursor.execute("SELECT COALESCE(MAX(order_id), 0) + 1 AS next_num FROM orders")
+        order_id = cursor.fetchone()["next_num"]
         
         # Получаем ФИО текущего пользователя
         cursor.execute("SELECT last_name, first_name, middle_name FROM users WHERE user_id = %s", (user_id,))
@@ -67,16 +67,16 @@ def create_order(user_id, cart_items):
 
             cursor.execute(
                 """
-                INSERT INTO orders (order_number, order_date, customer_fio, category, product_name_raw, production, variant_name_raw, quantity, unit_price)
+                INSERT INTO orders (order_id, order_date, customer_fio, category, product_name_raw, production, variant_name_raw, quantity, unit_price)
                 VALUES (%s, CURRENT_DATE, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
-                    order_number, fio, item["category"], item["product_name"], 
+                    order_id, fio, item["category"], item["product_name"], 
                     item["production"], item["variant_text"], item["quantity"], 
                     item["price"]
                 )
             )
-        return order_number
+        return order_id
 
     return run_in_transaction(action)
 
